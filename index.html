@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScapeRoom 1.0 - Mansión de las Sombras</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- MENÚ PRINCIPAL -->
+  <div id="main-menu" class="screen">
+    <div class="menu-header">
+      <h1>MANSIÓN DE LAS SOMBRAS</h1>
+      <p class="subtitle">ScapeRoom 1.0 • Aventura de Escape & Enigmas</p>
+    </div>
+    
+    <div class="menu-body">
+      <div class="menu-column">
+        <h3>🎮 Configuración de Partida</h3>
+        
+        <label>Género del Personaje:</label>
+        <div class="btn-group">
+          <button onclick="selectGender('boy')" id="btn-boy" class="active">Chico</button>
+          <button onclick="selectGender('girl')" id="btn-girl">Chica</button>
+        </div>
+
+        <label>Dificultad de Enigmas:</label>
+        <div class="btn-group">
+          <button onclick="selectDifficulty('primaria')" id="btn-pri" class="active">Primaria</button>
+          <button onclick="selectDifficulty('secundaria')" id="btn-sec">Secundaria</button>
+        </div>
+
+        <button onclick="showScreen('customize-screen')" class="btn-secondary">🎨 Personalizar Personaje</button>
+        <button onclick="showScreen('shop-screen')" class="btn-secondary">🛒 Tienda Mística</button>
+      </div>
+    </div>
+
+    <button onclick="startCutscene()" class="btn-play">▶ INICIAR AVENTURA</button>
+  </div>
+
+  <!-- PANTALLA DE PERSONALIZACIÓN -->
+  <div id="customize-screen" class="screen hidden">
+    <h2>🎨 PERSONALIZACIÓN DEL HÉROE</h2>
+    <div class="customizer-container">
+      <div class="preview-box">
+        <canvas id="previewCanvas" width="120" height="120"></canvas>
+      </div>
+      
+      <div class="options-box">
+        <label>Color de Piel:</label>
+        <div class="color-options">
+          <button style="background: #f1c27d;" onclick="setSkinColor('#f1c27d')"></button>
+          <button style="background: #e0ac69;" onclick="setSkinColor('#e0ac69')"></button>
+          <button style="background: #8d5524;" onclick="setSkinColor('#8d5524')"></button>
+        </div>
+
+        <label>Color de Ropa:</label>
+        <div class="color-options">
+          <button style="background: #3498db;" onclick="setClothColor('#3498db')"></button>
+          <button style="background: #e74c3c;" onclick="setClothColor('#e74c3c')"></button>
+          <button style="background: #2ecc71;" onclick="setClothColor('#2ecc71')"></button>
+          <button style="background: #f1c40f;" onclick="setClothColor('#f1c40f')"></button>
+        </div>
+
+        <label>Accesorios:</label>
+        <div class="btn-group">
+          <button onclick="setHat('none')">Ninguno</button>
+          <button onclick="setHat('cap')">Gorra</button>
+          <button onclick="setHat('crown')">Corona</button>
+        </div>
+      </div>
+    </div>
+    <button onclick="showScreen('main-menu')" class="btn-secondary">Volver al Menú</button>
+  </div>
+
+  <!-- TIENDA -->
+  <div id="shop-screen" class="screen hidden">
+    <h2>TIENDA MÍSTICA</h2>
+    <p>Monedas disponibles: <span id="shop-coins">50</span> 🪙</p>
+    <div class="shop-items">
+      <div class="item">
+        <h3>Hat de Detective</h3>
+        <p>Precio: 30 Monedas</p>
+        <button onclick="buyHat('detective', 30)">Comprar / Equipar</button>
+      </div>
+      <div class="item">
+        <h3>Casco Futuro</h3>
+        <p>Precio: 50 Monedas</p>
+        <button onclick="buyHat('helmet', 50)">Comprar / Equipar</button>
+      </div>
+    </div>
+    <button onclick="showScreen('main-menu')" class="btn-secondary">Volver al Menú</button>
+  </div>
+
+  <!-- PANTALLA DE JUEGO & CINEMÁTICA -->
+  <div id="game-screen" class="screen hidden">
+    <div id="hud" class="hidden">
+      <div>🪙 Monedas: <span id="coins-count">0</span></div>
+      <div>❤️ Vidas: <span id="lives-count">3</span></div>
+      <div>🔑 Llaves/Partes: <span id="keys-count">0/1</span></div>
+      <div>📍 Nivel: <span id="level-count">1</span>/3</div>
+    </div>
+
+    <div id="tutorial-banner" class="hidden">
+      🎯 <span id="tutorial-text">Cargando objetivo...</span>
+    </div>
+
+    <div class="canvas-container">
+      <canvas id="gameCanvas" width="800" height="450"></canvas>
+      <button id="btn-skip-cutscene" class="btn-skip hidden" onclick="skipCutscene()">Saltar Cinematográfica ⏭</button>
+      <div id="action-prompt" class="hidden">Presiona [E] para Interactuar</div>
+      
+      <!-- SUBTÍTULO FLOTANTE AUTOMÁTICO (SECUESTRO) -->
+      <div id="cutscene-banner" class="cutscene-sub-banner hidden">
+        <p id="cutscene-banner-text">Cargando escena...</p>
+      </div>
+
+      <!-- DIÁLOGO INTERACTIVO (SOLO EN LA MANSIÓN) -->
+      <div id="cutscene-dialog" class="hidden">
+        <p id="dialog-text">Cargando historia...</p>
+        <button id="btn-next-dialog" onclick="nextCutsceneStep()">Continuar ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE ACERTIJO -->
+  <div id="puzzle-modal" class="modal hidden">
+    <div class="modal-content">
+      <h3 id="puzzle-title">🔒 Enigma de la Mansión</h3>
+      <p id="puzzle-question">Cargando pregunta...</p>
+      <div id="puzzle-options"></div>
+    </div>
+  </div>
+
+  <!-- MODAL FIN DE JUEGO -->
+  <div id="end-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="end-title">FIN DEL JUEGO</h2>
+      <p id="end-message"></p>
+      <button onclick="location.reload()">Jugar de Nuevo</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
